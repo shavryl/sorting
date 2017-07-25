@@ -1,0 +1,36 @@
+{% extends 'basic_app/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+    <h1> Settings: </h1>
+    <div class="container">
+        <form action="{% url 'basic_app:password_change' %}" method="POST" accept-charset="utf-8">
+            {% csrf_token %}
+            <label for="New password">New password: </label>
+            <input id="new_password1" type="text" name="new_password1" value="{{ new_password1 }}">
+            <label for="New password confirmation">Password confirmation: </label>
+            <input id="new_password2" type="text" name="new_password2" value="{{ new_password2 }}">
+
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+
+
+    <div class="container">
+        <form action="{% url 'basic_app:verokey_create' %}" method="POST">
+            {% csrf_token %}
+            <label for="vero_key">Vero Key: </label>
+            <input id="vero_key" type="text" name="verokey" value="{{ verokey }}">
+            <input type="submit" value="ok">
+        </form>
+    </div>
+
+
+
+
+
+
+
+
+{% endblock %}
+
