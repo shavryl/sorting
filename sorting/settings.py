@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -44,6 +43,9 @@ INSTALLED_APPS = [
     'import_export',
     'tablib',
     'vero',
+    'django_adminlte',
+    'django_adminlte_theme',
+    'django.contrib.admin',
 
 ]
 

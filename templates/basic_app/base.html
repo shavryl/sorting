@@ -1,60 +1,95 @@
-{% load static %}
-{% load i18n %}
-<!DOCTYPE html>
-    <head>
-        <title></title>
-
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <meta name="csrf-token" content="{% csrf_token %}">
-        {% block extra_head %}
-        {% endblock %}
-
-    </head>
-
-    <body>
-        <nav class="navbar navbar-default navbar-static-top">
-            <div class="container">
-                <ul class="nav navbar-nav">
-                    <li><a class="navbar-link" href="{% url 'basic_app:index' %}">Home Page</a></li>
-                    <li><a class="navbar-link" href="{% url 'basic_app:register' %}">Register</a></li>
-
-
-
-                    {% if user.is_authenticated %}
-                        <li><a class="navbar-link" href="{% url 'basic_app:logout' %}">Logout</a></li>
-                        <li><a class="navbar-link" href="{% url 'basic_app:datatables_110' %}">Contacts</a></li>
-                        <li><a class="navbar-link" href="{% url 'basic_app:user_settings' %}">Settings</a></li>
-                            {% if user.is_superuser %}
-                                <li><a class="navbar-link" href="{% url 'admin:index' %}">Admin</a></li>
-                                {% endif %}
-
-                    {% else %}
-                        <li><a class="navbar-link" href="{% url 'basic_app:user_login' %}">Login</a></li>
-                    {% endif %}
-
-
-                </ul>
-            </div>
-        </nav>
-
-        {% if messages %}
-        <ul class="messages">
-             {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-             {% endfor %}
-        </ul>fu
-
-        {% endif %}
-
-        <div class="container">
-            {% block content %}
-            {% endblock %}
-        </div>
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-    {% block javascript %}
+{% extends 'adminlte/base.html' %}
+{% load static %}<!DOCTYPE html>
+<html>
+<head>
+    {% block title_outer %}
+        <title>{% block title %}{{ site.name }}{% endblock %}</title>
     {% endblock %}
 
-    </body>
-</html>
+    {% block meta %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    {% endblock %}
+
+    {% block stylesheets %}
+        {% include 'adminlte/lib/_styles.html' %}
+    {% endblock %}
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="hold-transition skin-blue sidebar-mini {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}">
+
+{% block body %}
+    <div class="wrapper">
+        {% block nav_header %}
+            {% include 'basic_app/adminlte/lib/_main_header.html' %}
+        {% endblock %}
+
+        {% block nav_sidebar %}
+            {% include 'basic_app/adminlte/lib/_main_sidebar.html' %}
+        {% endblock %}
+
+        {% block content_wrapper %}
+        <div class="content-wrapper">
+            {% block content_header %}
+                <section class="content-header">
+                    <h1>
+                        {% block page_name %}{% endblock %}
+                        {% block no_description %}
+                        <small>{% block page_description %}{% endblock %}</small>
+                        {% endblock %}
+                    </h1>
+                    {% block breadcrumbs %}
+                        {# Breadcrumb implementation left to developers #}
+                    {% endblock %}
+                </section>
+            {% endblock %}
+
+            {% block content_outer %}
+            <section class="content">
+                {% block messages %}
+                    {% include 'adminlte/lib/_messages.html' %}
+                {% endblock %}
+
+                {% block content_block_wrap %}
+                    {% block content %}{% endblock %}
+                {% endblock %}
+            </section>
+            {% endblock %}
+
+        </div>
+        {% endblock content_wrapper %}
+
+        {% block nav_footer %}
+            {% include 'adminlte/lib/_main_footer.html' %}
+        {% endblock %}
+
+    </div>
+{% endblock body %}
+
+{% block javascript %}
+    <script type="application/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+{% include 'adminlte/lib/_scripts.html' %}
+{% endblock %}
+
+
+
+<footer class="main-footer">
+    <div class="pull-right hidden-xs">
+        {% block footer_right %}
+            <b>Version</b> {% block version %}0.1{% endblock %}
+        {% endblock %}
+    </div>
+
+    {% block footer_left %}
+    {% block legal %}
+    <strong>Copyright &copy; {% now "Y" %}{% if not site %}.{% endif %}
+        {% if site %}
+            <a href="http://{{ site.domain }}">{{ site.name }}</a>
+        {% endif %}
+    </strong>
+    {% endblock %}
+    {% endblock %}
+</footer>

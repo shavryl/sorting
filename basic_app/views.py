@@ -16,13 +16,14 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from .forms import ProfileForm
 from .models import Profile, MyVeroKey
+from django.contrib.auth.forms import PasswordChangeForm
 
 from django.http import HttpResponse
 from .resources import ProfileResource
 from tablib import Dataset
 from django.shortcuts import render, get_object_or_404, resolve_url
 
-from basic_app.forms import UserForm, VeroKeyForm
+from .forms import UserForm, VeroKeyForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse
@@ -48,6 +49,13 @@ class IndexView(TemplateView):
 
 class SettingsView(LoginRequiredMixin,TemplateView):
     template_name = 'basic_app/user_settings.html'
+
+    def get_context_data(self, **kwargs):
+        data = MyVeroKey.objects.filter(user=self.request.user).values('verokey', 'id')
+        if data:
+            return data[0]
+        return {'id': '', 'verokey': ''}
+
 
 
 class UsersList110(LoginRequiredMixin,TemplateView):
@@ -75,20 +83,6 @@ class UsersList110Json(LoginRequiredMixin, BaseDatatableView):
         return qs
 
 
-        # qs = qs.filter(Q(user=self.request.user))
-        # sSearch_2 = self.request.GET.get('sSearch_2', None)
-        # sSearch_3 = self.request.GET.get('sSearch_3', None)
-        # if sSearch_2 or sSearch_3:
-        #     qs = qs.filter(Q(city=sSearch_2) | Q(country=sSearch_3))
-        #     return qs
-
-        #qs2 = Profile.objects.all(F('city'))
-        #qs1.union(qs2,qs3)
-        #or
-        #Profile.objects.get(
-        #   Q(city=sSearch_2) | Q(country=sSearch_3),
-        #   date_of_addition = sSearch_7,
-        # )
 
 
 class TableSortData(ListView):
@@ -193,17 +187,12 @@ class ProfileHandsome(LoginRequiredMixin, UpdateView):
         return HttpResponse(json.dumps(msg), status=status, content_type="application/json")
 
 
-class ProfileCreate(LoginRequiredMixin, CreateView):
-    def post(self, request, *args, **kwargs):
-        if request.method == "POST":
-            return HttpResponse(200)
-
 
 
 
 
 def register(request):
-
+# remove
     registered = False
 
     if request.method == "POST":
@@ -228,11 +217,23 @@ def register(request):
 
 
 class ProfileDelete(LoginRequiredMixin, DeleteView):
-    model = Profile
-    success_url = "datatables_110"
+
     def post(self, request, *args, **kwargs):
+        status=200
+        msg=''
+        pk = request.POST.get('pk')
+        profile = get_object_or_404(Profile, pk=pk)
         if request.method == 'POST':
-            return self.delete(request, *args, **kwargs)
+            try:
+                currentProfile = Profile.objects.filter(id=request.POST['pk'], user=request.user)
+                if not currentProfile.exists():
+                    raise Exception("You don't have this profile")
+                currentProfile.delete()
+            except Exception as e:
+                msg = str(e)
+                status=400
+
+            return HttpResponse(json.dumps(msg), status=status, content_type="application/json")
 
 
 
@@ -309,48 +310,32 @@ def import_data(request):
 
 @csrf_protect
 @login_required
-def password_change(request,
-                    template_name='basic_app/user_settings.html',
-                    post_change_redirect=None,
-                    password_change_form=SetPasswordForm,
-                    extra_context=None):
-    if post_change_redirect is None:
-        post_change_redirect = reverse('basic_app:index')
-    else:
-        post_change_redirect = resolve_url(post_change_redirect)
+def password_change(request):
+
     if request.method == "POST":
-        form = password_change_form(user=request.user, data=request.POST)
+        form = SetPasswordForm(data=request.POST, user=request.user)
+
         if form.is_valid():
             form.save()
-            # Updating the password logs out all other sessions for the user
-            # except the current one.
             update_session_auth_hash(request, form.user)
-            return HttpResponseRedirect(post_change_redirect)
+            return redirect('basic_app:user_settings')
+
+        else:
+            return redirect('basic_app:user_settings')
+
     else:
-        form = password_change_form(user=request.user)
+        form = SetPasswordForm(user=request.user)
+
     context = {
         'form': form,
-        'title': ('Password change'),
+        'title': ('Password was changed'),
     }
-    if extra_context is not None:
-        context.update(extra_context)
 
-    return TemplateResponse(request, template_name, context)
+    return render(request, 'basic_app/user_settings.html', context)
 
 
 
 
-@login_required
-def password_change_done(request,
-                         template_name='basic_app:password_change_done.html',
-                         extra_context=None):
-    context = {
-        'title': ('Password change successful'),
-    }
-    if extra_context is not None:
-        context.update(extra_context)
-
-    return TemplateResponse(request, template_name, context)
 
 
 
@@ -362,20 +347,57 @@ def vero_key_create(request):
         form = VeroKeyForm(data=request.POST)
         if form.is_valid():
             verokey = form.save(commit=False)
+            if form.cleaned_data['id']:
+                verokey.id = form.cleaned_data['id']
             verokey.user = request.user
             verokey.save()
-    return TemplateResponse(request, 'basic_app/user_settings.html', {'form': form})
+
+        return redirect('/settings/')
 
 
 
 def vero_add_profiles(request):
     from vero import VeroEventLogger
 
-    auth_token = MyVeroKey.verokey
-    logger = VeroEventLogger(auth_token)
-    # loop through current user profiles
-    # and loop through columns, or maybe queryset?
-    # add profile columns :
-    user_name = Profile.name
-    user_email = Profile.email
-    logger.add_user(user_name, user_email)
+
+    context = ''
+
+    if request.method == 'GET':
+        try:
+            auth_token = MyVeroKey.objects.filter(user=request.user)
+
+            if not auth_token[0].verokey:
+                raise Exception("Fill in get vero token form")
+
+            currentProfile = Profile.objects.filter(user=request.user)
+            if not currentProfile.exists():
+                raise Exception("You don't have this profile")
+
+
+            for profile in currentProfile:
+                user_data = {
+                    'name': profile.name,
+                    'lastname': profile.lastname,
+                    'city': profile.city,
+                    'country': profile.country,
+                    'phonenumber': profile.phonenumber,
+                }
+                logger = VeroEventLogger(auth_token[0].verokey)
+                logger.add_user(profile.id, user_data, user_email=profile.email)
+
+
+
+            context = {
+                'title': 'Profiles data was send to vero account'
+            }
+
+        except Exception as e:
+            msg = str(e)
+            context = {
+            'title': "Profiles data was not send to vero account :'("
+        }
+
+    return TemplateResponse(request, "basic_app/user_settings.html", context)
+
+
+

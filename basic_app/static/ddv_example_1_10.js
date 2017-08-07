@@ -16,8 +16,8 @@ $(document).ready(function() {
                 targets: [-1],
                 "mRender": function(data, type, full) {
 
-                    return '<span data-id="'+full[8]+'"><button type="button" class="btn btn-warning btn-sm js-update-profile" data-url="/profiles/' + full[8] + '/update/">' + '<span class="glyphicon glyphicon-pencil"></span> Edit </button> / ' +
-                        '<button type="button" class="btn btn-danger btn-sm"> <span class="glyphicon glyphicon-trash"></span> Delete </button></span>';
+                    return '<span data-id="'+full[8]+'"><button type="button" class="btn btn-warning btn-sm js-update-profile">' + '<span class="glyphicon glyphicon-pencil"></span> Edit </button> / ' +
+                        '<button type="button" class="btn btn-danger btn-sm js-delete-profile"><span class="glyphicon glyphicon-trash"></span> Delete </button></span>';
                 }
             },
             {

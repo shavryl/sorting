@@ -65,7 +65,6 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <form class="js-profile-create-form">
-{#                <form method="POST" action="/profiles/create/" class="js-profile-create-form">#}
                     {% csrf_token %}
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -127,24 +126,13 @@
         </div>
     </div>
 
-
-    <a href="{% url 'basic_app:export_users_csv' %}" class="btn btn-success btn-xs">Export profiles to .csv</a>
-
-{#     <a href="{% url 'table_sort' %}" data-url="{% url 'table_sort' %}" id="l" class="btn btn-success btn-xs"> Sort </a>#}
-
-{#    <form method="POST" enctype="multipart/form-data">#}
-
-{#    <form id="upload-file" >#}
-{#        {% csrf_token %}#}
-{#        <input type="file" name="myfile" id="profileFile">#}
-{#        <button type="button" class="btn btn-default" id="upload-user-file">Upload</button>#}
-{#    </form>#}
-
-
-         <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal">
-  Import profiles from .csv
+    {% block page_actions %}
+        <a href="{% url 'basic_app:export_users_csv' %}" class="btn btn-success btn-xs">Export profiles to .csv</a>
+        <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal">
+            Import profiles from .csv
         </button>
-
+        <a href="{% url 'basic_app:sendprofiles' %}" class="btn btn-warning btn-xs">Send profiles to GetVero</a>
+    {% endblock %}
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -170,12 +158,33 @@
 </div>
 
 
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Delete</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to delete.</p>
+                    <p>Do you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="btnYes" class="btn btn-danger">Yes</a>
+                    <a href="#" data-dismiss="modal" aria-hidden="true" class="btn btn-primary">No</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 {% endblock %}
 
 
     {% block javascript %}
+        <script type="application/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
     <script src="{% static "ddv_example_1_10.js" %}"></script>
     <script src="{% static 'profiles.js' %}"></script>
@@ -207,7 +216,5 @@
             }
         }
     </script>
-
-
 
     {% endblock %}

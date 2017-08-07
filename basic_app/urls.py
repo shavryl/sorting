@@ -19,13 +19,12 @@ urlpatterns = [
     url(r'^export/csv/$', views.export, name='export_users_csv'),
     url(r'^import/csv/$', views.import_data, name='import'),
 
-    url(r'^profiles/$', views.ProfileHandsome.as_view(), name='vasya kolya'),
+    url(r'^profiles/$', views.ProfileHandsome.as_view(), name='profiles'),
     url(r'^profiles/delete/$', views.ProfileDelete.as_view(), name='profile_delete'),
-    url(r'^profiles/create/$', views.ProfileCreate.as_view(), name='profile_create'),
+    url(r'^sendprofiles/$', views.vero_add_profiles, name='sendprofiles'),
 
 
     url(r'^password_change/$', views.password_change, name='password_change'),
-    url(r'^password_change/done/$', views.password_change_done, name='password_change_done'),
     url(r'^verokey_create/$', views.vero_key_create, name='verokey_create'),
     url(r'^table_sort$', views.TableSortData.as_view(), name='table_sort'),
 ]
