@@ -1,0 +1,64 @@
+{% extends 'adminlte/lib/_main_sidebar.html' %}
+<!-- Left side column. contains the sidebar -->
+<aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+        <!-- Sidebar user panel -->
+
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        {% block nav_links_ul %}
+        <ul class="sidebar-menu">
+            {% block nav_links_outer %}
+            <li class="header">{% block nav_heading %}MAIN NAVIGATION{% endblock %}</li>
+
+            {% block nav_links %}
+                <li>
+                    <a href="{% url 'basic_app:index' %}">
+                        <i class="fa fa-address-card-o"></i> <span>How to</span>
+                    </a>
+                </li>
+                  <li>
+                    <a href="{% url 'basic_app:register' %}">
+                        <i class="fa fa-user"></i> <span>Register</span>
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                 <li>
+                    <a href="{% url 'basic_app:datatables_110' %}">
+                        <i class="fa fa-address-book"></i> <span>Contacts</span>
+                    </a>
+                </li>
+                 <li>
+                    <a href="{% url 'basic_app:user_settings' %}">
+                        <i class="fa fa-dashboard"></i> <span>Settings</span>
+                    </a>
+                </li>
+                 <li>
+                    <a href="{% url 'basic_app:logout' %}">
+                        <i class="fa fa-anchor"></i> <span>Logout</span>
+                    </a>
+                </li>
+                    {% if user.is_superuser %}
+                 <li>
+                    <a href="{% url 'admin:index' %}">
+                        <i class="fa fa-ambulance"></i> <span>Admin</span>
+                    </a>
+                </li>
+                    {% endif %}
+                {% else %}
+                 <li>
+                    <a href="{% url 'basic_app:user_login' %}">
+                        <i class="fa fa-apple"></i> <span>Login</span>
+                    </a>
+                </li>
+                {% endif %}
+
+
+            {% endblock nav_links %}
+            {% endblock nav_links_outer %}
+        </ul>
+        {% endblock nav_links_ul %}
+    </section>
+    <!-- /.sidebar -->
+</aside>
+
