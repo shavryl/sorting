@@ -1,0 +1,220 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+{% load i18n staticfiles %}
+
+{% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+
+{% endblock %}
+{% block content %}
+
+    <!-- BUTTON TO TRIGGER THE ACTION -->
+    <p>
+
+        <div>
+            <div class="inline">
+
+                <div class="form-group col-md-2">
+                    <label for="city_filter">Filter by city</label>
+                    <select id="city_filter" class="form-control">
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="country_filter">Filter by country</label>
+                    <select id="country_filter" class="form-control">
+                    </select>
+                </div>
+                <div class="form-group col-md-2 pull-right">
+                    <button type="button" class="btn btn-primary js-create-profile" data-url="{% url 'basic_app:profile_create' %}">
+                     <span class="glyphicon glyphicon-plus"></span>New Profile</button>
+                </div>
+            </div>
+        </div>
+     </p>
+
+    <table class="datatable" id="MyTable">
+        <thead>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Lastname" %}</th>
+            <th class="dt-filter-select">{% trans "City" %}</th>
+            <th class="dt-filter-select">{% trans "Country" %}</th>
+            <th>{% trans "Phonenumber" %}</th>
+            <th>{% trans "Email" %}</th>
+            <th>{% trans "Date of Birth" %}</th>
+            <th>{% trans "Date of Addition" %}</th>
+            <th>{% trans "" %}</th>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>Name</th>
+            <th>Lastname</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Phonenumber</th>
+            <th>Email</th>
+            <th>Date of birth</th>
+            <th>Date of Addition</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <!-- THE MODAL WE WILL BE USING -->
+    <div class="modal fade" id="modal-profile">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="js-profile-create-form">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title"><span id="profile-modal-header"></span></h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="id_name">Name</label>
+                            <input class="form-control" id="id_name" maxlength="100" name="name" required="" type="text">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_lastname">Lastname</label>
+                            <input class="form-control" id="id_lastname" maxlength="100" name="lastname" required="" type="text">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_city">City</label>
+                            <input class="form-control" id="id_city" maxlength="100" name="city" type="text">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_country">Country</label>
+                            <input class="form-control" id="id_country" maxlength="100" name="country" type="text">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_phonenumber">Phonenumber</label>
+                            <input class="form-control" id="id_phonenumber" maxlength="20" name="phonenumber" required="" type="text">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_email">Email</label>
+                            <input class="form-control" id="id_email" maxlength="100" name="email" required="" type="email">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_date_of_birth">Date of birth</label>
+                            <input class="form-control" id="id_date_of_birth" name="date_of_birth" type="text">
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer" id="profile-modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary confirm-btn"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% block page_actions %}
+        <a href="{% url 'basic_app:export_users_csv' %}" class="btn btn-success btn-xs">Export profiles to .csv</a>
+        <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal">
+            Import profiles from .csv
+        </button>
+        <a href="{% url 'basic_app:sendprofiles' %}" class="btn btn-warning btn-xs">Send profiles to GetVero</a>
+    {% endblock %}
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+          <form method="POST" id="import_form" action="{% url 'basic_app:import' %}" enctype="multipart/form-data">
+           {% csrf_token %}
+          <input type="file" name="myfile">
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" id="import_csv" class="btn btn-default">Upload</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Delete</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to delete.</p>
+                    <p>Do you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="btnYes" class="btn btn-danger">Yes</a>
+                    <a href="#" data-dismiss="modal" aria-hidden="true" class="btn btn-primary">No</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+
+    {% block javascript %}
+        <script type="application/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="{% static "ddv_example_1_10.js" %}"></script>
+    <script src="{% static 'profiles.js' %}"></script>
+    <script type="text/javascript">
+        var USERS_LIST_JSON_URL = '{% url "basic_app:users_list_json_110" %}';
+        // translations for datatables
+
+        var dt_language = {
+            "emptyTable":     "{% trans "No data available in table" %}",
+            "info":           "{% trans "Showing _START_ to _END_ of _TOTAL_ entries" %}",
+            "infoEmpty":      "{% trans "Showing 0 to 0 of 0 entries" %}",
+            "infoFiltered":   "{% trans "(filtered from _MAX_ total entries)" %}",
+            "infoPostFix":    "",
+            "thousands":      ",",
+            "lengthMenu":     "{% trans "Show _MENU_ entries" %}",
+            "loadingRecords": "{% trans "Loading..." %}",
+            "processing":     "{% trans "Processing..." %}",
+            "search":         "{% trans "Search:" %}",
+            "zeroRecords":    "{% trans "No matching records found" %}",
+            "paginate": {
+                "first":      "{% trans "First" %}",
+                "last":       "{% trans "Last" %}",
+                "next":       "{% trans "Next" %}",
+                "previous":   "{% trans "Previous" %}"
+            },
+            "aria": {
+                "sortAscending":  "{% trans ": activate to sort column ascending" %}",
+                "sortDescending": "{% trans ": activate to sort column descending" %}"
+            }
+        }
+    </script>
+
+    {% endblock %}
