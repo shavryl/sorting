@@ -14,7 +14,7 @@ from django.views.generic import TemplateView, ListView, UpdateView, DeleteView,
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from .forms import ProfileForm
+from .forms import ProfileForm, UserPasswordChangeForm
 from .models import Profile, MyVeroKey
 from django.contrib.auth.forms import PasswordChangeForm
 
@@ -313,18 +313,18 @@ def import_data(request):
 def password_change(request):
 
     if request.method == "POST":
-        form = SetPasswordForm(data=request.POST, user=request.user)
+        form = UserPasswordChangeForm(data=request.POST, user=request.user)
 
         if form.is_valid():
-            form.save()
             update_session_auth_hash(request, form.user)
+            form.save()
             return redirect('basic_app:user_settings')
 
         else:
             return redirect('basic_app:user_settings')
 
     else:
-        form = SetPasswordForm(user=request.user)
+        form = UserPasswordChangeForm(user=request.user)
 
     context = {
         'form': form,

@@ -1,18 +1,19 @@
 {% extends 'basic_app/base.html' %}
 
+
 {% block content %}
 
-<div class="jumbotron">
+<div>
     {% if registered %}
         <h1>Thank you for registering!</h1>
     {% else %}
         <h1>Register Here!</h1>
-        <h3>Fill out the form:</h3>
 
-        <form method="POST">
+
+        <form class="form-horizontal" method="POST" accept-charset="utf-8">
             {% csrf_token %}
             {{  user_form.as_p }}
-            <input type="submit" name="" value=Register>
+            <button type="submit" name="" class="btn btn-primary confirm-btn" value=Register>Register</button>
         </form>
 
     {%  endif %}

@@ -1,21 +1,40 @@
-{% extends 'basic_app/base.html' %}
-{% block content %}
+{% extends "adminlte/base.html" %}
 
-    <div class="jumbotron">
-     <h1>Please Login</h1>
-    <form action="{% url 'basic_app:user_login' %}" method="POST">
-        {% csrf_token %}
-        <label for="username">Username:</label>
-        <input type="text" name="username" placeholder="Enter Username">
+{% block body_class %}login-page{% endblock %}
 
-        <label for="password">Password:</label>
-        <input type="password" name="password">
+{% block body %}
+    <div class="login-box">
+        {% block logo %}
+        <div class="login-logo">
+            {# Mirrors block names used in _main_header.html #}
+            <a href="{% block logo_href %}/{% endblock %}">{% block logo_text %}<b>Sorting</b>App{% endblock %}</a>
+        </div>
+        {% endblock %}
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            {% block login_form %}
+                <form action="{% url 'basic_app:user_login' %}" method="POST">{% csrf_token %}
+                    {% if message %}
+                        <p class="login-box-msg" style="color: red;">{{ message }}</p>
+                    {% endif %}
+                    <div class="form-group has-feedback">
+                        <input name="username" class="form-control" placeholder="Enter Username">
+                        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <input type="password" name="password" class="form-control" placeholder="Password">
+                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-8">
+                        </div>
+                        <div class="col-xs-4">
+                            <button type="submit" class="btn btn-primary btn-block btn-flat">Login</button>
+                        </div>
+                    </div>
+                </form>
+            {% endblock login_form %}
 
-        <input type="submit" name="" value="Login">
-    </form>
-
+        </div>
     </div>
-
-
 {% endblock %}
-
