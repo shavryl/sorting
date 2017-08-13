@@ -111,9 +111,7 @@ var saveForm = function () {
         data: form,
         type: 'POST',
         dataType: 'json',
-        // // headers:  {
-        //     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        // },
+
         success: function (data) {
             if (data.form_is_valid) {
                 $("#profile-table tbody").html(data.html_profile_list);

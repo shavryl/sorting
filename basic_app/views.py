@@ -109,6 +109,7 @@ def profile_create(request):
     return save_profile_form(request, form, 'basic_app/partial_profile_create.html')
 
 
+@login_required
 @csrf_protect
 def save_profile_form(request, form, template_name):
     data = dict()
@@ -118,40 +119,13 @@ def save_profile_form(request, form, template_name):
             add.user = request.user
             add.save()
         data['form_is_valid'] = True
-        profiles = Profile.objects.all()
-        data['html_profile_list'] = render_to_string('basic_app/users_list_1_10.html', {
-            'profiles': profiles
-        })
+
     else:
         data['form_is_valid']= False
+
     context = {'form': form}
     data['html_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
-
-
-
-@csrf_protect
-def profile_update(request):
-    data = dict()
-    pk = request.POST.get('pk')
-    profile = get_object_or_404(Profile, pk=pk)
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            add = form.save(commit=False)
-            add.user = request.user
-            add.save()
-        data['form_is_valid'] = True
-        profiles = Profile.objects.all()
-        data['html_profile_list'] = render_to_string('basic_app/users_list_1_10.html', {
-            'profiles': profiles
-        })
-    else:
-        data['form_is_valid']= False
-    context = {'form': form}
-    data['html_form'] = render_to_string(context, request=request)
-    return JsonResponse(data)
-
 
 
 
@@ -314,14 +288,15 @@ def password_change(request):
 
     if request.method == "POST":
         form = UserPasswordChangeForm(data=request.POST, user=request.user)
-
         if form.is_valid():
-            update_session_auth_hash(request, form.user)
             form.save()
-            return redirect('basic_app:user_settings')
+            update_session_auth_hash(request, form.user)
+            form = UserPasswordChangeForm(user=request.user)
+
 
         else:
-            return redirect('basic_app:user_settings')
+            context = {'title': ('Password is not valid')}
+            return render(request, 'basic_app/user_settings.html', context)
 
     else:
         form = UserPasswordChangeForm(user=request.user)
